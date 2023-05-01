@@ -1,45 +1,44 @@
-import { MathArray } from "mathjs";
-import { create, all, Matrix } from "mathjs";
-
 import { createCanvas } from "canvas";
 import fs from "fs";
+import { Path, generateAxes } from "./render";
+import { paths2Gcode, saveGcode, GcodeSettings } from "./gcode";
 
-// Dimensions for the image
+// Dimensions of the image
 const width = 1200;
 const height = 627;
 
-const config = {};
-const math = create(all, config);
-
 const f: string = "sqrt(1-x^2)";
 
-const plotInterval: number[] = [-10, 10, 100]; // [min, max, step]
+axesTest();
 
-let x: number[] = createInterval(plotInterval[0], plotInterval[1], plotInterval[2]);
+function axesTest() {
+  let paths: Path[] = generateAxes({
+    dividerX: 10,
+    dividerY: 10,
+    dividerLength: 5,
+    bounds: {
+      xMin: -10,
+      xMax: 10,
+      yMin: -10,
+      yMax: 10,
+    },
+  });
 
-let y: number[] = calculateY(x, f);
+  let gcodeSettings: GcodeSettings = {
+    feedRate: 1000,
+    startGcode: "G28\nG90\nG1 Z5 F5000\nG1 X0 Y0 F5000\nG1 Z0 F5000\n",
+    endGcode: "G1 Z5 F5000\nG28\n",
+    penUp: "M03 S0\n",
+    penDown: "M03 S100\n",
+  };
 
-plot(x, y);
+  let gcode: string = paths2Gcode(paths, gcodeSettings);
+  saveGcode(gcode, "axes.nc", gcodeSettings);
+}
+
+//plot(x, y);
 
 //plot the function
-
-//creates an array of numbers from min to max with size amount of evenly spaced intervals
-function createInterval(min: number, max: number, size: number): number[] {
-  let interval: number[] = [];
-  let step = (max - min) / size;
-  for (let i = min; i < max; i += step) {
-    interval.push(i);
-  }
-  return interval;
-}
-
-function calculateY(x: number[], f: string): number[] {
-  let y: number[] = [];
-  for (let i = 0; i < x.length; i++) {
-    y.push(math.evaluate(f, { x: x[i] }));
-  }
-  return y;
-}
 
 // plot(x,y) plots the function to an image
 function plot(x: number[], y: number[]) {
