@@ -1,5 +1,6 @@
 // imports
 import * as fs from "fs";
+import { createCanvas } from "canvas";
 import { Path } from "./render";
 
 export interface GcodeSettings {
@@ -26,6 +27,33 @@ export function paths2Gcode(paths: Path[], settings: GcodeSettings): string {
     }
   }
   return gcode;
+}
+
+export function renderPathsAsImage(paths: Path[], fileName: string) {
+  // Dimensions of the image
+  const width = 100;
+  const height = 100;
+  // Instantiate the canvas object
+  const canvas = createCanvas(width, height);
+  const context = canvas.getContext("2d");
+
+  // Set the background color
+  context.fillStyle = "white";
+  context.fillRect(0, 0, width, height);
+
+  // Draw the paths
+  for (let path of paths) {
+    context.beginPath();
+    context.moveTo(path.points[0][0] + width / 2, -path.points[0][1] + height / 2);
+    for (let i = 1; i < path.points.length; i++) {
+      context.lineTo(path.points[i][0] + width / 2, -path.points[i][1] + height / 2);
+    }
+    context.stroke();
+  }
+
+  // Write the image to file
+  const buffer = canvas.toBuffer("image/png");
+  fs.writeFileSync(fileName, buffer);
 }
 
 export function saveGcode(gcode: string, fileName: string, gcodeSettings: GcodeSettings) {

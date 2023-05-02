@@ -1,28 +1,30 @@
-import { createCanvas } from "canvas";
-import fs from "fs";
-import { Path, generateAxes } from "./render";
-import { paths2Gcode, saveGcode, GcodeSettings } from "./gcode";
+import { Path, generateAxes, plotPoints } from "./render";
+import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
+import { Plot, generatePlotPoints } from "./math";
 
-// Dimensions of the image
-const width = 1200;
-const height = 627;
-
-const f: string = "sqrt(1-x^2)";
+const f: string = "sqrt(x)";
 
 axesTest();
 
 function axesTest() {
-  let paths: Path[] = generateAxes({
+  const settings = {
     dividerX: 10,
     dividerY: 10,
     dividerLength: 5,
     bounds: {
-      xMin: -10,
+      xMin: -5,
       xMax: 10,
       yMin: -10,
       yMax: 10,
     },
-  });
+  };
+  let paths: Path[] = generateAxes(settings);
+
+  let plot: Plot = generatePlotPoints(f, { min: -1, max: 1, points: 1000 });
+
+  let graph: Path = plotPoints(plot, settings);
+
+  paths.push(graph);
 
   let gcodeSettings: GcodeSettings = {
     feedRate: 1000,
@@ -34,39 +36,5 @@ function axesTest() {
 
   let gcode: string = paths2Gcode(paths, gcodeSettings);
   saveGcode(gcode, "axes.nc", gcodeSettings);
-}
-
-//plot(x, y);
-
-//plot the function
-
-// plot(x,y) plots the function to an image
-function plot(x: number[], y: number[]) {
-  // Instantiate the canvas object
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext("2d");
-
-  // Set the background color
-  context.fillStyle = "white";
-  context.fillRect(0, 0, width, height);
-
-  // Draw the axes
-  context.beginPath();
-  context.moveTo(0, height / 2);
-  context.lineTo(width, height / 2);
-  context.stroke();
-  context.beginPath();
-  context.moveTo(width / 2, 0);
-  context.lineTo(width / 2, height);
-  context.stroke();
-
-  // Draw the function
-  context.fillStyle = "black";
-  for (let i = 0; i < x.length; i++) {
-    context.fillRect(x[i] * 10, y[i] * 10, 1, 1);
-  }
-
-  // Write the image to file
-  const buffer = canvas.toBuffer("image/png");
-  fs.writeFileSync("./image.png", buffer);
+  renderPathsAsImage(paths, "axes.png");
 }
