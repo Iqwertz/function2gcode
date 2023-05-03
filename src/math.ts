@@ -10,12 +10,12 @@ export interface PlotInterval {
   points: number;
 }
 
-export interface Plot {
+export interface PlotData {
   x: number[];
   y: number[];
 }
 
-export function generatePlotPoints(f: string, plotInterval: PlotInterval): Plot {
+export function generatePlotPoints(f: string, plotInterval: PlotInterval): PlotData {
   let x: number[] = createInterval(plotInterval.min, plotInterval.max, plotInterval.points);
   let y: number[] = calculateY(x, f);
   return { x, y };

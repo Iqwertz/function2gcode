@@ -1,4 +1,4 @@
-import { Plot } from "./math";
+import { PlotData } from "./math";
 
 export interface Path {
   points: number[][];
@@ -8,17 +8,9 @@ export interface AxisStyle {
   dividerX: number;
   dividerY: number;
   dividerLength: number;
-  bounds: PlotBounds;
 }
 
-export interface PlotBounds {
-  xMin: number;
-  xMax: number;
-  yMin: number;
-  yMax: number;
-}
-
-export function plotPoints(plot: Plot, axisStyle: AxisStyle): Path {
+export function plotPoints(plot: PlotData, axisStyle: AxisStyle): Path {
   //hier weiter machen, es müssen die Punkte noch auf die richtige Größe skaliert werden und verschoben werden
   const width = 100;
   const height = 100; //toDO Make global

@@ -1,28 +1,68 @@
-import { Path, generateAxes, plotPoints } from "./render";
+import { AxisStyle, Path, generateAxes, plotPoints } from "./render";
 import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
-import { Plot, generatePlotPoints } from "./math";
+import { PlotData, generatePlotPoints } from "./math";
+
+export interface Plot {
+  axisSettings: AxisStyle;
+  plotSettings: PlotSettings;
+  functions: PlotFunction[];
+  axis: Path[];
+}
+
+export interface PlotSettings {
+  width: number,
+  height: number,
+  xBounds: {
+    min: number,
+    max: number,
+  },
+  yBounds: {
+    min: number,
+    max: number,
+  },
+  plotResolution: number,
+}
+
+export interface PlotFunction {
+  func: string;
+  style: string;
+  plotPoints: PlotData;
+  path: Path[];
+  yBounds: {
+    min: number,
+    max: number,
+  },
+  resolution?: number,
+}
+
+const testPlot: Plot = {
+  axisSettings: {
+    dividerX: 10,
+    dividerY: 10,
+    dividerLength: 1,
+  }
 
 const f: string = "x^2";
 
 axesTest();
 
 function axesTest() {
-  const settings = {
+  const axisSettings: AxisStyle = {
     dividerX: 10,
     dividerY: 10,
     dividerLength: 1,
     bounds: {
       xMin: -5,
       xMax: 10,
-      yMin: -10,
-      yMax: 10,
+      yMin: 0,
+      yMax: 0,
     },
   };
-  let paths: Path[] = generateAxes(settings);
 
-  let plot: Plot = generatePlotPoints(f, { min: -5, max: 10, points: 1000 });
+  let plot: PlotData = generatePlotPoints(f, { min: -5, max: 10, points: 1000 });
+  let graph: Path = plotPoints(plot, axisSettings);
 
-  let graph: Path = plotPoints(plot, settings);
+  let paths: Path[] = generateAxes(axisSettings);
 
   paths.push(graph);
 
