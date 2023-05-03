@@ -1,5 +1,6 @@
 import { MathArray } from "mathjs";
 import { create, all, Matrix } from "mathjs";
+import { Bounds, Plot } from ".";
 
 const config = {};
 const math = create(all, config);
@@ -15,10 +16,31 @@ export interface PlotData {
   y: number[];
 }
 
-export function generatePlotPoints(f: string, plotInterval: PlotInterval): PlotData {
-  let x: number[] = createInterval(plotInterval.min, plotInterval.max, plotInterval.points);
-  let y: number[] = calculateY(x, f);
-  return { x, y };
+export function generatePlotPoints(plot: Plot): Plot {
+  let yBounds: Bounds = { min: 0, max: 0 };
+  for (let func of plot.functions) {
+    let resolution = func.resolution ? func.resolution : plot.plotSettings.plotResolution;
+    let x: number[] = createInterval(plot.plotSettings.xBounds.min, plot.plotSettings.xBounds.max, resolution);
+    let y: number[] = calculateY(x, func.func);
+
+    let funcYBounds: Bounds = {
+      min: Math.min(...y),
+      max: Math.max(...y),
+    };
+
+    if (funcYBounds.min < yBounds.min) {
+      yBounds.min = funcYBounds.min;
+    }
+    if (funcYBounds.max > yBounds.max) {
+      yBounds.max = funcYBounds.max;
+    }
+
+    func.plotPoints = { x: x, y: y };
+  }
+
+  plot.plotSettings.yBounds = yBounds;
+
+  return plot;
 }
 
 //creates an array of numbers from min to max with size amount of evenly spaced intervals

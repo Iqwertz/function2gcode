@@ -1,4 +1,4 @@
-import { AxisStyle, Path, generateAxes, plotPoints } from "./render";
+import { AxisStyle, Path, generateAxes, plot2Paths, plotPoints } from "./render";
 import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
 import { PlotData, generatePlotPoints } from "./math";
 
@@ -10,29 +10,25 @@ export interface Plot {
 }
 
 export interface PlotSettings {
-  width: number,
-  height: number,
-  xBounds: {
-    min: number,
-    max: number,
-  },
-  yBounds: {
-    min: number,
-    max: number,
-  },
-  plotResolution: number,
+  width: number;
+  height: number;
+  xBounds: Bounds;
+  yBounds?: Bounds;
+  plotResolution: number;
 }
 
 export interface PlotFunction {
   func: string;
   style: string;
-  plotPoints: PlotData;
-  path: Path[];
-  yBounds: {
-    min: number,
-    max: number,
-  },
-  resolution?: number,
+  plotPoints?: PlotData;
+  path?: Path[];
+  yBounds?: Bounds;
+  resolution?: number;
+}
+
+export interface Bounds {
+  min: number;
+  max: number;
 }
 
 const testPlot: Plot = {
@@ -40,31 +36,44 @@ const testPlot: Plot = {
     dividerX: 10,
     dividerY: 10,
     dividerLength: 1,
-  }
+  },
+  plotSettings: {
+    height: 200,
+    width: 200,
+    plotResolution: 1000,
+    xBounds: {
+      min: -5,
+      max: 10,
+    },
+  },
+  functions: [
+    {
+      func: "x^2",
+      style: "",
+    },
+    {
+      func: "sqrt(x)",
+      style: "",
+    },
+    {
+      func: "-x^2+4",
+      style: "",
+    },
+  ],
+  axis: [],
+};
 
 const f: string = "x^2";
 
 axesTest();
 
 function axesTest() {
-  const axisSettings: AxisStyle = {
-    dividerX: 10,
-    dividerY: 10,
-    dividerLength: 1,
-    bounds: {
-      xMin: -5,
-      xMax: 10,
-      yMin: 0,
-      yMax: 0,
-    },
-  };
+  let plotConfig: Plot = testPlot;
+  plotConfig = generatePlotPoints(plotConfig);
+  plotConfig = plotPoints(plotConfig);
+  plotConfig = generateAxes(plotConfig);
 
-  let plot: PlotData = generatePlotPoints(f, { min: -5, max: 10, points: 1000 });
-  let graph: Path = plotPoints(plot, axisSettings);
-
-  let paths: Path[] = generateAxes(axisSettings);
-
-  paths.push(graph);
+  let allPaths = plot2Paths(plotConfig);
 
   let gcodeSettings: GcodeSettings = {
     feedRate: 1000,
@@ -74,7 +83,7 @@ function axesTest() {
     penDown: "M03 S100\n",
   };
 
-  let gcode: string = paths2Gcode(paths, gcodeSettings);
+  let gcode: string = paths2Gcode(allPaths, gcodeSettings);
   saveGcode(gcode, "axes.nc", gcodeSettings);
-  renderPathsAsImage(paths, "axes.png");
+  renderPathsAsImage(allPaths, "axes.png");
 }
