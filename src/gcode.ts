@@ -44,9 +44,9 @@ export function renderPathsAsImage(paths: Path[], fileName: string) {
   // Draw the paths
   for (let path of paths) {
     context.beginPath();
-    context.moveTo(path.points[0][0] + width / 2, -path.points[0][1] + height / 2);
+    context.moveTo(path.points[0][0], path.points[0][1]);
     for (let i = 1; i < path.points.length; i++) {
-      context.lineTo(path.points[i][0] + width / 2, -path.points[i][1] + height / 2);
+      context.lineTo(path.points[i][0], path.points[i][1]);
     }
     context.stroke();
   }

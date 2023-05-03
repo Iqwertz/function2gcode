@@ -2,7 +2,7 @@ import { Path, generateAxes, plotPoints } from "./render";
 import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
 import { Plot, generatePlotPoints } from "./math";
 
-const f: string = "sqrt(x)";
+const f: string = "x^2";
 
 axesTest();
 
@@ -10,7 +10,7 @@ function axesTest() {
   const settings = {
     dividerX: 10,
     dividerY: 10,
-    dividerLength: 5,
+    dividerLength: 1,
     bounds: {
       xMin: -5,
       xMax: 10,
@@ -20,7 +20,7 @@ function axesTest() {
   };
   let paths: Path[] = generateAxes(settings);
 
-  let plot: Plot = generatePlotPoints(f, { min: -1, max: 1, points: 1000 });
+  let plot: Plot = generatePlotPoints(f, { min: -5, max: 10, points: 1000 });
 
   let graph: Path = plotPoints(plot, settings);
 
