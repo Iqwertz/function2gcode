@@ -1,6 +1,6 @@
 import { AxisStyle, Path, generateAxes, plot2Paths, plotPoints, scalePlot } from "./render";
 import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
-import { PlotData, generatePlotPoints } from "./math";
+import { PlotData, generatePlotPoints, limitYValues } from "./math";
 
 export interface Plot {
   axisSettings: AxisStyle;
@@ -45,6 +45,10 @@ const testPlot: Plot = {
       min: -5,
       max: 10,
     },
+    yBounds: {
+      min: 0,
+      max: 10,
+    },
   },
   functions: [
     {
@@ -57,6 +61,10 @@ const testPlot: Plot = {
     },
     {
       func: "-x^2+4",
+      style: "",
+    },
+    {
+      func: "sin(x)",
       style: "",
     },
   ],
@@ -72,6 +80,7 @@ function axesTest() {
   generatePlotPoints(plotConfig);
   plotPoints(plotConfig);
   generateAxes(plotConfig);
+  limitYValues(plotConfig);
   scalePlot(plotConfig);
 
   let allPaths = plot2Paths(plotConfig);

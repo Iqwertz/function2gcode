@@ -1,6 +1,7 @@
 import { MathArray } from "mathjs";
 import { create, all, Matrix } from "mathjs";
 import { Bounds, Plot } from ".";
+import { Path } from "./render";
 
 const config = {};
 const math = create(all, config);
@@ -38,7 +39,9 @@ export function generatePlotPoints(plot: Plot): Plot {
     func.plotPoints = { x: x, y: y };
   }
 
-  plot.plotSettings.yBounds = yBounds;
+  if (!plot.plotSettings.yBounds) {
+    plot.plotSettings.yBounds = yBounds;
+  }
 
   return plot;
 }
@@ -59,4 +62,37 @@ export function calculateY(x: number[], f: string): number[] {
     y.push(math.evaluate(f, { x: x[i] }));
   }
   return y;
+}
+
+export function limitYValues(plot: Plot) {
+  if (!plot.plotSettings.yBounds) {
+    console.error("cant calculate function yBounds not defined");
+    return;
+  }
+  let yBounds: Bounds = plot.plotSettings.yBounds;
+  for (let func of plot.functions) {
+    if (!func.path) {
+      console.error("cant calculate function. Path not defined");
+      continue;
+    }
+    let paths: Path[] = func.path;
+    let limitedPaths: Path[] = [];
+    let pathCounter = 0;
+    for (let path of paths) {
+      for (let i = 0; i < path.points.length; i++) {
+        if (path.points[i][1] > yBounds.max || path.points[i][1] < yBounds.min) {
+          if (limitedPaths[pathCounter]) {
+            pathCounter++;
+          }
+        } else {
+          if (!limitedPaths[pathCounter]) {
+            limitedPaths[pathCounter] = { points: [] };
+          }
+          limitedPaths[pathCounter].points.push(path.points[i]);
+        }
+      }
+    }
+    func.path = limitedPaths;
+  }
+  return plot;
 }

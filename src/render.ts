@@ -106,8 +106,8 @@ export function scalePlot(plot: Plot) {
     return;
   }
 
-  let scaleY = Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min) / plot.plotSettings.height;
-  let scaleX = Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min) / plot.plotSettings.width;
+  let scaleX = Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min) / plot.plotSettings.height;
+  let scaleY = Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min) / plot.plotSettings.width;
 
   plot.axis = scalePath(plot.axis, scaleX, scaleY);
 
@@ -134,7 +134,7 @@ function scalePath(path: Path[] | undefined, x: number, y: number): Path[] {
   }
   let newPath: Path[] = [];
   for (let i = 0; i < path.length; i++) {
-    console.log(path[i].points);
+    newPath.push({ points: [] });
     path[i].points.forEach((point) => {
       newPath[i].points.push([point[0] * x, point[1] * y]);
     });
