@@ -100,6 +100,24 @@ export function plot2Paths(plot: Plot): Path[] {
   return paths;
 }
 
+export function scalePlot(plot: Plot) {
+  if (!plot.plotSettings.yBounds) {
+    console.error("cant scale plot, yBounds not defined");
+    return;
+  }
+
+  let scaleY = Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min) / plot.plotSettings.height;
+  let scaleX = Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min) / plot.plotSettings.width;
+
+  plot.axis = scalePath(plot.axis, scaleX, scaleY);
+
+  for (let i = 0; i < plot.functions.length; i++) {
+    if (plot.functions[i].path) {
+      plot.functions[i].path = scalePath(plot.functions[i].path, scaleX, scaleY);
+    }
+  }
+}
+
 export function translatePath(path: Path, x: number, y: number): Path {
   let newPath: Path = {
     points: [],
@@ -110,12 +128,16 @@ export function translatePath(path: Path, x: number, y: number): Path {
   return newPath;
 }
 
-function scalePath(path: Path, x: number, y: number): Path {
-  let newPath: Path = {
-    points: [],
-  };
-  path.points.forEach((point) => {
-    newPath.points.push([point[0] * x, point[1] * y]);
-  });
+function scalePath(path: Path[] | undefined, x: number, y: number): Path[] {
+  if (!path) {
+    return [];
+  }
+  let newPath: Path[] = [];
+  for (let i = 0; i < path.length; i++) {
+    console.log(path[i].points);
+    path[i].points.forEach((point) => {
+      newPath[i].points.push([point[0] * x, point[1] * y]);
+    });
+  }
   return newPath;
 }

@@ -1,4 +1,4 @@
-import { AxisStyle, Path, generateAxes, plot2Paths, plotPoints } from "./render";
+import { AxisStyle, Path, generateAxes, plot2Paths, plotPoints, scalePlot } from "./render";
 import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
 import { PlotData, generatePlotPoints } from "./math";
 
@@ -69,9 +69,10 @@ axesTest();
 
 function axesTest() {
   let plotConfig: Plot = testPlot;
-  plotConfig = generatePlotPoints(plotConfig);
-  plotConfig = plotPoints(plotConfig);
-  plotConfig = generateAxes(plotConfig);
+  generatePlotPoints(plotConfig);
+  plotPoints(plotConfig);
+  generateAxes(plotConfig);
+  scalePlot(plotConfig);
 
   let allPaths = plot2Paths(plotConfig);
 
