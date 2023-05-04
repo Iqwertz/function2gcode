@@ -87,10 +87,10 @@ function axesTest() {
 
   let gcodeSettings: GcodeSettings = {
     feedRate: 1000,
-    startGcode: "G28\nG90\nG1 Z5 F5000\nG1 X0 Y0 F5000\nG1 Z0 F5000\n",
-    endGcode: "G1 Z5 F5000\nG28\n",
-    penUp: "M03 S0\n",
-    penDown: "M03 S100\n",
+    startGcode: "", //"$H\nG92X0Y0Z0\nF4000\nG21\nG90\nM05\nG4P0.5\n",
+    endGcode: "M05 \nG4P0.5\nG01X0Y0",
+    penUp: "M05\nG4P0.5\n",
+    penDown: "M03S1000\nG4P0.5\n",
   };
 
   let gcode: string = paths2Gcode(allPaths, gcodeSettings);

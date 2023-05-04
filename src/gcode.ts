@@ -17,12 +17,16 @@ export function paths2Gcode(paths: Path[], settings: GcodeSettings): string {
     for (let i = 0; i < path.points.length; i++) {
       let point = path.points[i];
 
-      gcode += `G1 X${point[0]} Y${point[1]}\n`;
-      if (i == 0) {
-        gcode += settings.penDown;
-      }
-      if (i == path.points.length - 1) {
-        gcode += settings.penUp;
+      if (isNaN(point[0]) || isNaN(point[1])) {
+        console.error("NaN in path");
+      } else {
+        gcode += `G1 X${point[0]} Y${point[1]}\n`;
+        if (i == 0) {
+          gcode += settings.penDown;
+        }
+        if (i == path.points.length - 1) {
+          gcode += settings.penUp;
+        }
       }
     }
   }
