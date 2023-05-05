@@ -30,7 +30,6 @@ export function plotPoints(plotConfig: Plot): Plot {
 
 export function generateAxes(plotConfig: Plot): Plot {
   let paths: Path[] = [];
-  let style: AxisStyle = plotConfig.axisSettings;
   let xBounds = plotConfig.plotSettings.xBounds;
   let yBounds = plotConfig.plotSettings.yBounds;
 
@@ -42,19 +41,8 @@ export function generateAxes(plotConfig: Plot): Plot {
       [xBounds.max, 0],
     ],
   });
-  //x axis marks
-  for (let i = 0; i < style.dividerX; i++) {
-    let xLength = Math.abs(xBounds.max - xBounds.min);
-    xAxis.push({
-      points: [
-        [xBounds.min + i * (xLength / style.dividerX), (-1 * style.dividerLength) / 2],
-        [xBounds.min + i * (xLength / style.dividerX), style.dividerLength / 2],
-      ],
-    });
-  }
 
   // y axis
-
   if (!yBounds) {
     console.error("cant calculate function yBounds not defined");
     return plotConfig;
@@ -67,16 +55,6 @@ export function generateAxes(plotConfig: Plot): Plot {
       [0, yBounds?.max],
     ],
   });
-  //y axis marks
-  for (let i = 0; i < style.dividerY; i++) {
-    let yLength = Math.abs(yBounds.max - yBounds.min);
-    yAxis.push({
-      points: [
-        [(-1 * style.dividerLength) / 2, yBounds.min + i * (yLength / style.dividerY)],
-        [style.dividerLength / 2, yBounds.min + i * (yLength / style.dividerY)],
-      ],
-    });
-  }
 
   paths = paths.concat(xAxis);
   paths = paths.concat(yAxis);
@@ -84,6 +62,44 @@ export function generateAxes(plotConfig: Plot): Plot {
   plotConfig.axis = paths;
 
   return plotConfig;
+}
+
+export function generateTicks(plot: Plot) {
+  let style: AxisStyle = plot.axisSettings;
+  let width = plot.plotSettings.width;
+  let height = plot.plotSettings.height;
+  let xBounds = plot.plotSettings.xBounds;
+  let yBounds = plot.plotSettings.yBounds;
+  //x axis marks
+  let xAxis: Path[] = [];
+  for (let i = 0; i < style.dividerX; i++) {
+    let xLength = Math.abs(xBounds.max - xBounds.min);
+    xAxis.push({
+      points: [
+        [xBounds.min + i * (xLength / width), (-1 * style.dividerLength) / 2],
+        [xBounds.min + i * (xLength / width), style.dividerLength / 2],
+      ],
+    });
+  }
+
+  //y axis marks
+  if (!yBounds) {
+    console.error("cant calculate function yBounds not defined");
+    return;
+  }
+  let yAxis: Path[] = [];
+  for (let i = 0; i < style.dividerY; i++) {
+    let yLength = Math.abs(yBounds.max - yBounds.min);
+    yAxis.push({
+      points: [
+        [(-1 * style.dividerLength) / 2, yBounds.min + i * (yLength / height)],
+        [style.dividerLength / 2, yBounds.min + i * (yLength / height)],
+      ],
+    });
+  }
+
+  plot.axis = plot.axis.concat(xAxis);
+  plot.axis = plot.axis.concat(yAxis);
 }
 
 export function plot2Paths(plot: Plot): Path[] {
@@ -106,8 +122,8 @@ export function scalePlot(plot: Plot) {
     return;
   }
 
-  let scaleX = Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min) / plot.plotSettings.height;
-  let scaleY = Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min) / plot.plotSettings.width;
+  let scaleX = plot.plotSettings.height / Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min);
+  let scaleY = plot.plotSettings.width / Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min);
 
   plot.axis = scalePath(plot.axis, scaleX, scaleY);
 
