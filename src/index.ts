@@ -33,24 +33,28 @@ export interface Bounds {
 
 const testPlot: Plot = {
   axisSettings: {
-    dividerX: 10,
-    dividerY: 10,
+    dividerX: 15,
+    dividerY: 15,
     dividerLength: 1,
   },
   plotSettings: {
-    height: 200,
-    width: 200,
+    height: 100,
+    width: 100,
     plotResolution: 1000,
     xBounds: {
       min: -5,
-      max: 10,
+      max: -1,
     },
     yBounds: {
-      min: 0,
-      max: 10,
+      min: -5,
+      max: 1,
     },
   },
   functions: [
+    {
+      func: "x",
+      style: "",
+    },
     {
       func: "x^2",
       style: "",
@@ -64,7 +68,7 @@ const testPlot: Plot = {
       style: "",
     },
     {
-      func: "sin(x)",
+      func: "4sin(x)",
       style: "",
     },
   ],

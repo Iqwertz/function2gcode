@@ -13,12 +13,12 @@ export interface GcodeSettings {
 
 export function paths2Gcode(paths: Path[], settings: GcodeSettings): string {
   let gcode: string = "";
+  let detectedNan = false;
   for (let path of paths) {
     for (let i = 0; i < path.points.length; i++) {
       let point = path.points[i];
-
       if (isNaN(point[0]) || isNaN(point[1])) {
-        console.error("NaN in path");
+        detectedNan = true;
       } else {
         gcode += `G1 X${point[0]} Y${point[1]}\n`;
         if (i == 0) {
@@ -29,6 +29,10 @@ export function paths2Gcode(paths: Path[], settings: GcodeSettings): string {
         }
       }
     }
+  }
+  if (detectedNan) {
+    console.warn("NaN found while generating gcode");
+    console.warn("This is probably caused by complex values in the function. Complex mode will be added in the future");
   }
   return gcode;
 }
