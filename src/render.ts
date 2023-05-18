@@ -1,4 +1,4 @@
-import { Plot } from ".";
+import { Bounds, Plot } from ".";
 import fs from "fs";
 
 export interface Path {
@@ -98,8 +98,11 @@ export function generateTicks(plot: Plot) {
   let xAxis: Path[] = [];
   let xAxisNegative: Path[] = [];
   let xAxisPositive: Path[] = [];
-  for (let i = 1; i <= style.dividerX; i++) {
-    let xLength = (Math.abs(xBounds.max - xBounds.min) * xScale) / style.dividerX;
+
+  let nXTicks = Math.pow(2, style.dividerX);
+  for (let i = 1; i <= nXTicks; i++) {
+    let tickSteps = Math.abs(xBounds.max - xBounds.min) / nXTicks;
+    let xLength = tickSteps * xScale;
     //Generate ticks in origin and spread them out
     if (i * xLength < xBounds.max * xScale) {
       xAxisPositive.push({
@@ -108,6 +111,15 @@ export function generateTicks(plot: Plot) {
           [i * xLength, style.dividerLength / 2],
         ],
       });
+
+      let tickPath = getPathsFromWord((i * tickSteps).toString(), 1, "height");
+      let tickLabel = tickPath[0];
+      tickLabel = translatePath(
+        tickLabel,
+        i * xLength - tickPath[1].max / 2,
+        (-1 * style.dividerLength) / 2 - tickPath[2].max
+      );
+      xAxisPositive = xAxisPositive.concat(tickLabel);
     }
 
     if (-1 * i * xLength > xBounds.min * xScale) {
@@ -117,6 +129,14 @@ export function generateTicks(plot: Plot) {
           [-1 * i * xLength, style.dividerLength / 2],
         ],
       });
+      let tickPath = getPathsFromWord((-1 * i * tickSteps).toString(), 1, "height");
+      let tickLabel = tickPath[0];
+      tickLabel = translatePath(
+        tickLabel,
+        -1 * i * xLength - tickPath[1].max / 2,
+        (-1 * style.dividerLength) / 2 - tickPath[2].max
+      );
+      xAxisNegative = xAxisNegative.concat(tickLabel);
     }
   }
 
@@ -127,8 +147,11 @@ export function generateTicks(plot: Plot) {
   let yAxis: Path[] = [];
   let yAxisNegative: Path[] = [];
   let yAxisPositive: Path[] = [];
-  for (let i = 1; i <= style.dividerY; i++) {
-    let yLength = (Math.abs(yBounds.max - yBounds.min) * yScale) / style.dividerY;
+
+  let nYTicks = Math.pow(2, style.dividerY);
+  for (let i = 1; i <= nYTicks; i++) {
+    let tickSteps = Math.abs(yBounds.max - yBounds.min) / nYTicks;
+    let yLength = tickSteps * yScale;
 
     if (i * yLength < yBounds.max * yScale) {
       yAxisPositive.push({
@@ -137,6 +160,15 @@ export function generateTicks(plot: Plot) {
           [style.dividerLength / 2, i * yLength],
         ],
       });
+
+      let tickPath = getPathsFromWord((i * tickSteps).toString(), 1, "height");
+      let tickLabel = tickPath[0];
+      tickLabel = translatePath(
+        tickLabel,
+        (-1 * style.dividerLength) / 2 - tickPath[1].max,
+        i * yLength - tickPath[2].max / 2
+      );
+      yAxisPositive = yAxisPositive.concat(tickLabel);
     }
 
     if (-1 * i * yLength > yBounds.min * yScale) {
@@ -146,6 +178,15 @@ export function generateTicks(plot: Plot) {
           [style.dividerLength / 2, -1 * i * yLength],
         ],
       });
+
+      let tickPath = getPathsFromWord((-1 * i * tickSteps).toString(), 1, "height");
+      let tickLabel = tickPath[0];
+      tickLabel = translatePath(
+        tickLabel,
+        (-1 * style.dividerLength) / 2 - tickPath[1].max,
+        -1 * i * yLength - tickPath[2].max / 2
+      );
+      yAxisNegative = yAxisNegative.concat(tickLabel);
     }
   }
 
@@ -235,8 +276,17 @@ function scalePath(path: Path[] | undefined, x: number, y: number): Path[] {
   return newPath;
 }
 
-export function getPathsFromWord(word: string): Path[] {
+export function getPathsFromWord(
+  word: string,
+  max: number,
+  scaleBy: "width" | "height",
+  letterSpacing?: number
+): [Path[], Bounds, Bounds] {
   let paths: Path[] = [];
+
+  letterSpacing = letterSpacing || 10;
+  const letterHeight = fontPoints.settings.maxHeight;
+  let wordWidth = 0;
 
   let letters = word.split("");
   let x = 0;
@@ -244,23 +294,63 @@ export function getPathsFromWord(word: string): Path[] {
     let letterPaths = getPathFromLetter(letter);
     letterPaths = translatePath(letterPaths, x, 0);
     paths = paths.concat(letterPaths);
-    x += fontPoints.settings.maxWidth;
+    let letterWidth = fontPoints[letter].bounds.width;
+    wordWidth += Number(letterWidth) + letterSpacing;
+    x += letterWidth + letterSpacing;
   }
 
-  return paths;
+  paths = flipPath("y", paths);
+
+  let scale = max / (wordWidth * letters.length);
+
+  if (scaleBy == "height") {
+    scale = max / letterHeight;
+  }
+
+  paths = scalePath(paths, scale, scale);
+
+  return [paths, { min: 0, max: wordWidth * scale }, { min: 0, max: letterHeight * scale }];
 }
 
 export function getPathFromLetter(letter: string): Path[] {
   let paths: Path[] = [];
 
-  let points = fontPoints[letter];
-  for (let point of points) {
+  let segments = fontPoints[letter].paths;
+  for (let segment of segments) {
     let path: Path = {
       points: [],
     };
-    path.points.push([point[0], point[1]]);
+    for (let point of segment.points) {
+      //needs to be this explicit because there is no interface defined for the font
+      path.points.push([point[0], point[1]]);
+    }
+
     paths.push(path);
   }
 
   return paths;
+}
+
+//flips path along the x or y axis
+export function flipPath(axis: "x" | "y", path: Path[]): Path[];
+export function flipPath(axis: "x" | "y", path: Path): Path;
+export function flipPath(axis: "x" | "y", path: Path | Path[]) {
+  if (Array.isArray(path)) {
+    for (let i = 0; i < path.length; i++) {
+      path[i] = flipPath(axis, path[i]);
+    }
+    return path;
+  }
+
+  let newPath: Path = {
+    points: [],
+  };
+  path.points.forEach((point) => {
+    if (axis == "x") {
+      newPath.points.push([-point[0], point[1]]);
+    } else if (axis == "y") {
+      newPath.points.push([point[0], -point[1]]);
+    }
+  });
+  return newPath;
 }

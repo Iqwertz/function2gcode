@@ -43,8 +43,8 @@ export interface Bounds {
 
 const testPlot: Plot = {
   axisSettings: {
-    dividerX: 15,
-    dividerY: 15,
+    dividerX: 3,
+    dividerY: 3,
     dividerLength: 1,
   },
   plotSettings: {
@@ -53,7 +53,7 @@ const testPlot: Plot = {
     plotResolution: 1000,
     xBounds: {
       min: -5,
-      max: -1,
+      max: 3,
     },
     yBounds: {
       min: -5,
@@ -100,8 +100,8 @@ function axesTest() {
 
   let allPaths = plot2Paths(plotConfig);
 
-  let testWord = getPathsFromWord("Halihalo");
-  allPaths = allPaths.concat(testWord);
+  //let testWord = getPathsFromWord("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 30);
+  //allPaths = allPaths.concat(testWord);
 
   let gcodeSettings: GcodeSettings = {
     feedRate: 1000,
