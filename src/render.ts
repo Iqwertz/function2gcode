@@ -1,5 +1,5 @@
-import { Bounds, Plot } from ".";
-import { PlotData } from "./math";
+import { Plot } from ".";
+import fs from "fs";
 
 export interface Path {
   points: number[][];
@@ -10,6 +10,8 @@ export interface AxisStyle {
   dividerY: number;
   dividerLength: number;
 }
+
+let fontPoints = JSON.parse(fs.readFileSync("./src/fonts/HersheySans1.json", "utf8"));
 
 export function plotPoints(plotConfig: Plot): Plot {
   for (let func of plotConfig.functions) {
@@ -231,4 +233,34 @@ function scalePath(path: Path[] | undefined, x: number, y: number): Path[] {
     });
   }
   return newPath;
+}
+
+export function getPathsFromWord(word: string): Path[] {
+  let paths: Path[] = [];
+
+  let letters = word.split("");
+  let x = 0;
+  for (let letter of letters) {
+    let letterPaths = getPathFromLetter(letter);
+    letterPaths = translatePath(letterPaths, x, 0);
+    paths = paths.concat(letterPaths);
+    x += fontPoints.settings.maxWidth;
+  }
+
+  return paths;
+}
+
+export function getPathFromLetter(letter: string): Path[] {
+  let paths: Path[] = [];
+
+  let points = fontPoints[letter];
+  for (let point of points) {
+    let path: Path = {
+      points: [],
+    };
+    path.points.push([point[0], point[1]]);
+    paths.push(path);
+  }
+
+  return paths;
 }

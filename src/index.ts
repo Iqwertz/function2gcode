@@ -1,6 +1,16 @@
-import { AxisStyle, Path, generateAxes, generateTicks, plot2Paths, plotPoints, scalePlot } from "./render";
+import {
+  AxisStyle,
+  Path,
+  generateAxes,
+  generateTicks,
+  getPathsFromWord,
+  plot2Paths,
+  plotPoints,
+  scalePlot,
+} from "./render";
 import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
 import { PlotData, generatePlotPoints, limitYValues } from "./math";
+import { all } from "mathjs";
 
 export interface Plot {
   axisSettings: AxisStyle;
@@ -89,6 +99,9 @@ function axesTest() {
   generateTicks(plotConfig);
 
   let allPaths = plot2Paths(plotConfig);
+
+  let testWord = getPathsFromWord("Halihalo");
+  allPaths = allPaths.concat(testWord);
 
   let gcodeSettings: GcodeSettings = {
     feedRate: 1000,
