@@ -36,11 +36,27 @@ export function generatePlotPoints(plot: Plot): Plot {
       yBounds.max = funcYBounds.max;
     }
 
+    //to fixed 2 decimal places
+    for (let i = 0; i < y.length; i++) {
+      if (!isNaN(y[i])) {
+        y[i] = Number(y[i].toFixed(2));
+      }
+    }
+
+    for (let i = 0; i < x.length; i++) {
+      if (!isNaN(x[i])) {
+        x[i] = Number(x[i].toFixed(2));
+      }
+    }
+
     func.plotPoints = { x: x, y: y };
   }
 
   if (!plot.plotSettings.yBounds) {
+    yBounds.min = Number(yBounds.min.toPrecision(1));
+    yBounds.max = Number(yBounds.max.toPrecision(1));
     plot.plotSettings.yBounds = yBounds;
+    console.log("yBounds not defined. Calculated yBounds: ", yBounds);
   }
 
   return plot;

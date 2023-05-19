@@ -50,15 +50,15 @@ const testPlot: Plot = {
   plotSettings: {
     height: 100,
     width: 100,
-    plotResolution: 1000,
+    plotResolution: 100,
     xBounds: {
       min: -5,
       max: 3,
     },
-    yBounds: {
-      min: -5,
-      max: 1,
-    },
+    /*     yBounds: {
+      min: -21,
+      max: 25,
+    }, */
   },
   functions: [
     {

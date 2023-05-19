@@ -91,15 +91,15 @@ export function generateTicks(plot: Plot) {
     return;
   }
 
-  let xScale = height / 2 / Math.abs(yBounds.max - yBounds.min);
-  let yScale = width / 2 / Math.abs(xBounds.max - xBounds.min);
+  let yScale = height / 2 / Math.abs(yBounds.max - yBounds.min);
+  let xScale = width / 2 / Math.abs(xBounds.max - xBounds.min);
   console.log(xScale, yScale);
   //x axis marks
   let xAxis: Path[] = [];
   let xAxisNegative: Path[] = [];
   let xAxisPositive: Path[] = [];
 
-  let nXTicks = Math.pow(2, style.dividerX);
+  let nXTicks = Math.pow(10, Math.round(Math.log10(Math.pow(2, style.dividerX))));
   for (let i = 1; i <= nXTicks; i++) {
     let tickSteps = Math.abs(xBounds.max - xBounds.min) / nXTicks;
     let xLength = tickSteps * xScale;
@@ -112,7 +112,7 @@ export function generateTicks(plot: Plot) {
         ],
       });
 
-      let tickPath = getPathsFromWord((i * tickSteps).toString(), 1, "height");
+      let tickPath = getPathsFromWord((i * tickSteps).toFixed(2).toString(), 1, "height");
       let tickLabel = tickPath[0];
       tickLabel = translatePath(
         tickLabel,
@@ -129,7 +129,7 @@ export function generateTicks(plot: Plot) {
           [-1 * i * xLength, style.dividerLength / 2],
         ],
       });
-      let tickPath = getPathsFromWord((-1 * i * tickSteps).toString(), 1, "height");
+      let tickPath = getPathsFromWord((-1 * i * tickSteps).toFixed(2).toString(), 1, "height");
       let tickLabel = tickPath[0];
       tickLabel = translatePath(
         tickLabel,
@@ -148,7 +148,7 @@ export function generateTicks(plot: Plot) {
   let yAxisNegative: Path[] = [];
   let yAxisPositive: Path[] = [];
 
-  let nYTicks = Math.pow(2, style.dividerY);
+  let nYTicks = Math.pow(10, Math.round(Math.log10(Math.pow(2, style.dividerY))));
   for (let i = 1; i <= nYTicks; i++) {
     let tickSteps = Math.abs(yBounds.max - yBounds.min) / nYTicks;
     let yLength = tickSteps * yScale;
@@ -217,8 +217,8 @@ export function scalePlot(plot: Plot) {
     return;
   }
 
-  let scaleX = plot.plotSettings.height / 2 / Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min);
-  let scaleY = plot.plotSettings.width / 2 / Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min);
+  let scaleY = plot.plotSettings.height / 2 / Math.abs(plot.plotSettings.yBounds.max - plot.plotSettings.yBounds.min);
+  let scaleX = plot.plotSettings.width / 2 / Math.abs(plot.plotSettings.xBounds.max - plot.plotSettings.xBounds.min);
 
   plot.axis = scalePath(plot.axis, scaleX, scaleY);
 
