@@ -11,6 +11,13 @@ export interface AxisStyle {
   dividerLength: number;
 }
 
+export interface ArrowStyle {
+  width: number;
+  height: number;
+  headWidth: number;
+  headHeight: number;
+}
+
 let fontPoints = JSON.parse(fs.readFileSync("./src/fonts/HersheySans1.json", "utf8"));
 
 export function plotPoints(plotConfig: Plot): Plot {
@@ -112,7 +119,7 @@ export function generateTicks(plot: Plot) {
         ],
       });
 
-      let tickPath = getPathsFromWord((i * tickSteps).toFixed(2).toString(), 1, "height");
+      let tickPath = getPathsFromWord(Number((i * tickSteps).toFixed(2)).toString(), 1, "height");
       let tickLabel = tickPath[0];
       tickLabel = translatePath(
         tickLabel,
@@ -129,7 +136,7 @@ export function generateTicks(plot: Plot) {
           [-1 * i * xLength, style.dividerLength / 2],
         ],
       });
-      let tickPath = getPathsFromWord((-1 * i * tickSteps).toFixed(2).toString(), 1, "height");
+      let tickPath = getPathsFromWord(Number((-1 * i * tickSteps).toFixed(2)).toString(), 1, "height");
       let tickLabel = tickPath[0];
       tickLabel = translatePath(
         tickLabel,
@@ -195,6 +202,38 @@ export function generateTicks(plot: Plot) {
 
   plot.axis = plot.axis.concat(xAxis);
   plot.axis = plot.axis.concat(yAxis);
+
+  //generate arrows
+  let arrowStyle: ArrowStyle = {
+    width: style.dividerLength,
+    height: style.dividerLength,
+    headWidth: style.dividerLength * 2,
+    headHeight: style.dividerLength * 2,
+  };
+
+  let arrowX = getArrow(arrowStyle);
+  arrowX = translatePath(arrowX, xBounds.max * xScale, 0);
+  plot.axis.push(arrowX);
+
+  let arrowY = getArrow(arrowStyle);
+  arrowY = rotatePath(arrowY, Math.PI / 2, "origin");
+  arrowY = translatePath(arrowY, 0, yBounds.max * yScale);
+  plot.axis.push(arrowY);
+}
+
+function getArrow(style: ArrowStyle): Path {
+  let arrow: Path = {
+    points: [
+      [0, 0],
+      [style.width, 0],
+      [style.width, style.height / 2],
+      [style.width + style.headWidth, 0],
+      [style.width, (-1 * style.height) / 2],
+      [style.width, 0],
+    ],
+  };
+
+  return arrow;
 }
 
 export function plot2Paths(plot: Plot): Path[] {
@@ -353,4 +392,62 @@ export function flipPath(axis: "x" | "y", path: Path | Path[]) {
     }
   });
   return newPath;
+}
+
+export function rotatePath(path: Path[], angle: number, rotationPoint: "center" | "origin"): Path[];
+export function rotatePath(path: Path, angle: number, rotationPoint: "center" | "origin"): Path;
+export function rotatePath(path: Path | Path[], angle: number, rotationPoint: "center" | "origin") {
+  if (Array.isArray(path)) {
+    for (let i = 0; i < path.length; i++) {
+      path[i] = rotatePath(path[i], angle, rotationPoint);
+    }
+    return path;
+  }
+
+  let pathCenter = [0, 0];
+  if (rotationPoint == "center") {
+    pathCenter = getCenterOfPath(path);
+  }
+
+  let newPath: Path = {
+    points: [],
+  };
+  path.points.forEach((point) => {
+    newPath.points.push(rotatePoint(point, pathCenter, angle));
+  });
+  return newPath;
+}
+
+function getCenterOfPath(path: Path): number[] {
+  let xBounds: Bounds = { min: Infinity, max: -Infinity };
+  let yBounds: Bounds = { min: Infinity, max: -Infinity };
+
+  for (let point of path.points) {
+    if (point[0] < xBounds.min) {
+      xBounds.min = point[0];
+    }
+    if (point[0] > xBounds.max) {
+      xBounds.max = point[0];
+    }
+    if (point[1] < yBounds.min) {
+      yBounds.min = point[1];
+    }
+    if (point[1] > yBounds.max) {
+      yBounds.max = point[1];
+    }
+  }
+
+  return [xBounds.min + (xBounds.max - xBounds.min) / 2, yBounds.min + (yBounds.max - yBounds.min) / 2];
+}
+
+function rotatePoint(point: number[], center: number[], angle: number): number[] {
+  let x = point[0];
+  let y = point[1];
+  let cx = center[0];
+  let cy = center[1];
+
+  let rotatedX = Math.cos(angle) * (x - cx) - Math.sin(angle) * (y - cy) + cx;
+  let rotatedY = Math.sin(angle) * (x - cx) + Math.cos(angle) * (y - cy) + cy;
+
+  return [rotatedX, rotatedY];
 }

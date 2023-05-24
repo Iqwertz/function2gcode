@@ -52,7 +52,7 @@ const testPlot: Plot = {
     width: 100,
     plotResolution: 100,
     xBounds: {
-      min: -5,
+      min: -50,
       max: 3,
     },
     /*     yBounds: {
