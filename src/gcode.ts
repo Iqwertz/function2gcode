@@ -2,6 +2,7 @@
 import * as fs from "fs";
 import { createCanvas } from "canvas";
 import { Path } from "./render";
+import { Plot } from ".";
 
 export interface GcodeSettings {
   feedRate: number;
@@ -9,6 +10,22 @@ export interface GcodeSettings {
   endGcode: string;
   penUp: string;
   penDown: string;
+  penChangeCommand: string;
+}
+
+export function plot2Gcode(plot: Plot, settings: GcodeSettings): string {
+  let gcode: string = "";
+
+  gcode += settings.startGcode;
+  gcode += paths2Gcode(plot.axis, settings);
+  for (let func of plot.functions) {
+    if (func.path) {
+      gcode += paths2Gcode(func.path, settings);
+      gcode += settings.penChangeCommand;
+    }
+  }
+  gcode += settings.endGcode;
+  return gcode;
 }
 
 export function paths2Gcode(paths: Path[], settings: GcodeSettings): string {

@@ -8,7 +8,7 @@ import {
   plotPoints,
   scalePlot,
 } from "./render";
-import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage } from "./gcode";
+import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage, plot2Gcode } from "./gcode";
 import { PlotData, generatePlotPoints, limitYValues } from "./math";
 import { all } from "mathjs";
 
@@ -109,9 +109,10 @@ function axesTest() {
     endGcode: "M05 \nG4P0.5\nG01X0Y0",
     penUp: "M05\nG4P0.5\n",
     penDown: "M03S1000\nG4P0.5\n",
+    penChangeCommand: "M226 #ff0000 Waiting for pen change\n",
   };
 
-  let gcode: string = paths2Gcode(allPaths, gcodeSettings);
+  let gcode: string = plot2Gcode(plotConfig, gcodeSettings);
   saveGcode(gcode, "axes.nc", gcodeSettings);
   renderPathsAsImage(allPaths, "axes.png");
 }
