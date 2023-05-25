@@ -9,6 +9,8 @@ export interface AxisStyle {
   dividerX: number;
   dividerY: number;
   dividerLength: number;
+  xLabel: string;
+  yLabel: string;
 }
 
 export interface ArrowStyle {
@@ -213,12 +215,53 @@ export function generateTicks(plot: Plot) {
 
   let arrowX = getArrow(arrowStyle);
   arrowX = translatePath(arrowX, xBounds.max * xScale, 0);
-  plot.axis.push(arrowX);
+  let arrowXNegative = getArrow(arrowStyle);
+  arrowXNegative = rotatePath(arrowXNegative, Math.PI, "origin");
+  arrowXNegative = translatePath(arrowXNegative, xBounds.min * xScale, 0);
 
   let arrowY = getArrow(arrowStyle);
   arrowY = rotatePath(arrowY, Math.PI / 2, "origin");
   arrowY = translatePath(arrowY, 0, yBounds.max * yScale);
-  plot.axis.push(arrowY);
+  let arrowYNegative = getArrow(arrowStyle);
+  arrowYNegative = rotatePath(arrowYNegative, -1 * (Math.PI / 2), "origin");
+  arrowYNegative = translatePath(arrowYNegative, 0, yBounds.min * yScale);
+
+  if (xBounds.min > 0) {
+    arrowX = translatePath(arrowX, -xBounds.min * xScale, 0);
+  }
+  if (xBounds.max < 0) {
+    arrowXNegative = translatePath(arrowXNegative, -xBounds.max * xScale, 0);
+  }
+  if (yBounds.min > 0) {
+    arrowY = translatePath(arrowY, 0, -yBounds.min * yScale);
+  }
+  if (yBounds.max < 0) {
+    arrowYNegative = translatePath(arrowYNegative, 0, -yBounds.max * yScale);
+  }
+
+  if (xBounds.max > 0) {
+    plot.axis.push(arrowX);
+  }
+  if (xBounds.min < 0) {
+    plot.axis.push(arrowXNegative);
+  }
+  if (yBounds.max > 0) {
+    plot.axis.push(arrowY);
+  }
+  if (yBounds.min < 0) {
+    plot.axis.push(arrowYNegative);
+  }
+
+  //generate axis labels
+  let xLabelPos = xBounds.max > 0 ? xBounds.max : xBounds.min;
+  let xLabel = getPathsFromWord(plot.axisSettings.xLabel, 2, "height");
+  let xLabelGcode = translatePath(xLabel[0], xLabelPos * xScale + xLabel[1].max / 2, xLabel[2].max / 2);
+  plot.axis = plot.axis.concat(xLabelGcode);
+
+  let yLabelPos = yBounds.max > 0 ? yBounds.max : yBounds.min;
+  let yLabel = getPathsFromWord(plot.axisSettings.yLabel, 2, "height");
+  let yLabelGcode = translatePath(yLabel[0], yLabel[1].max / 2, yLabelPos * yScale + yLabel[2].max / 2);
+  plot.axis = plot.axis.concat(yLabelGcode);
 }
 
 function getArrow(style: ArrowStyle): Path {

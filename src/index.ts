@@ -46,19 +46,21 @@ const testPlot: Plot = {
     dividerX: 3,
     dividerY: 3,
     dividerLength: 1,
+    xLabel: "t",
+    yLabel: "y(t)",
   },
   plotSettings: {
     height: 100,
     width: 100,
     plotResolution: 100,
     xBounds: {
-      min: -50,
-      max: 3,
+      min: -10,
+      max: -1,
     },
-    /*     yBounds: {
+    yBounds: {
       min: -21,
-      max: 25,
-    }, */
+      max: -1,
+    },
   },
   functions: [
     {
