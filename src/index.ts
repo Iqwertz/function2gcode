@@ -54,13 +54,13 @@ const testPlot: Plot = {
     width: 100,
     plotResolution: 100,
     xBounds: {
-      min: -10,
-      max: -1,
+      min: -5,
+      max: 5,
     },
-    yBounds: {
+    /*     yBounds: {
       min: -21,
       max: -1,
-    },
+    }, */
   },
   functions: [
     {
@@ -111,7 +111,7 @@ function axesTest() {
     endGcode: "M05 \nG4P0.5\nG01X0Y0",
     penUp: "M05\nG4P0.5\n",
     penDown: "M03S1000\nG4P0.5\n",
-    penChangeCommand: "M226 #ff0000 Waiting for pen change\n",
+    penChangeCommand: "M226 #000000 Waiting for pen change\n",
   };
 
   let gcode: string = plot2Gcode(plotConfig, gcodeSettings);

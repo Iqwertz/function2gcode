@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { createCanvas } from "canvas";
 import { Path } from "./render";
 import { Plot } from ".";
+import uniqolor from "uniqolor";
 
 export interface GcodeSettings {
   feedRate: number;
@@ -19,9 +20,10 @@ export function plot2Gcode(plot: Plot, settings: GcodeSettings): string {
   gcode += settings.startGcode;
   gcode += paths2Gcode(plot.axis, settings);
   for (let func of plot.functions) {
+    let color = uniqolor.random({ saturation: 80, lightness: [70, 80] });
     if (func.path) {
+      gcode += settings.penChangeCommand.replace("#000000", color.color) + "\n";
       gcode += paths2Gcode(func.path, settings);
-      gcode += settings.penChangeCommand;
     }
   }
   gcode += settings.endGcode;

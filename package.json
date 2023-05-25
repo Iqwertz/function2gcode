@@ -5,6 +5,7 @@
     },
     "dependencies": {
         "canvas": "^2.11.2",
-        "mathjs": "^11.8.0"
+        "mathjs": "^11.8.0",
+        "uniqolor": "^1.1.0"
     }
 }
