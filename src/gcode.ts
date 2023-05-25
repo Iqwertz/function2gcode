@@ -17,7 +17,7 @@ export function plot2Gcode(plot: Plot, settings: GcodeSettings): string {
   let gcode: string = "";
 
   gcode += settings.startGcode;
-  gcode += paths2Gcode(plot.axis, settings);
+  // gcode += paths2Gcode(plot.axis, settings);
   for (let func of plot.functions) {
     if (func.path) {
       gcode += paths2Gcode(func.path, settings);
