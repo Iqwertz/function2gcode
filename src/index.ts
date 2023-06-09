@@ -1,16 +1,6 @@
-import {
-  AxisStyle,
-  Path,
-  generateAxes,
-  generateTicks,
-  getPathsFromWord,
-  plot2Paths,
-  plotPoints,
-  scalePlot,
-} from "./render";
-import { paths2Gcode, saveGcode, GcodeSettings, renderPathsAsImage, plot2Gcode } from "./gcode";
+import { AxisStyle, Path, generateAxes, generateTicks, plot2Paths, plotPoints, scalePlot } from "./render";
+import { saveGcode, GcodeSettings, renderPathsAsImage, plot2Gcode } from "./gcode";
 import { PlotData, generatePlotPoints, limitYValues } from "./math";
-import { all } from "mathjs";
 
 export interface Plot {
   axisSettings: AxisStyle;
@@ -57,17 +47,17 @@ const testPlot: Plot = {
       min: -5,
       max: 5,
     },
-    /*     yBounds: {
-      min: -21,
-      max: -1,
+    /*   yBounds: {
+      min: -10,
+      max: 10,
     }, */
   },
   functions: [
     {
-      func: "x",
+      func: "x^(3)",
       style: "",
     },
-    {
+    /* {
       func: "x^2",
       style: "",
     },
@@ -82,7 +72,7 @@ const testPlot: Plot = {
     {
       func: "4sin(x)",
       style: "",
-    },
+    }, */
   ],
   axis: [],
 };
@@ -101,9 +91,6 @@ function axesTest() {
   generateTicks(plotConfig);
 
   let allPaths = plot2Paths(plotConfig);
-
-  //let testWord = getPathsFromWord("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 30);
-  //allPaths = allPaths.concat(testWord);
 
   let gcodeSettings: GcodeSettings = {
     feedRate: 1000,
